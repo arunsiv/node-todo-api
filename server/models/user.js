@@ -32,7 +32,7 @@ var UserSchema = new mongoose.Schema({
     }]
 });
 
-//Overriding Mongoose's toJSON method so that it only return
+//Overriding Mongoose's toJSON instance method so that it only return
 //the properties we want instead of all the properties.
 UserSchema.methods.toJSON = function() {
     var user = this;
@@ -41,7 +41,7 @@ UserSchema.methods.toJSON = function() {
     return _.pick(userObject, ['_id', 'email']);
 };
 
-//Create a custom method to generate access and token
+//Create a custom instance method to generate access and token
 //while creating a new user.
 UserSchema.methods.generateAuthToken = function () {
     var user = this;
@@ -58,6 +58,29 @@ UserSchema.methods.generateAuthToken = function () {
 
     return user.save().then(() => {
         return token;
+    });
+
+};
+
+//Create a custom model method for fetching user based on token
+UserSchema.statics.findByToken = function(token) {
+    var User = this;
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, 'secretvalue');
+    } catch (e) {
+        // return new Promise((resolve, reject) => {
+        //     reject();
+        // });
+
+        return Promise.reject();
+    }
+
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
     });
 
 };
