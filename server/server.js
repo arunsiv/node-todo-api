@@ -1,3 +1,5 @@
+require('./config/config');
+
 const _ = require('lodash');
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -8,12 +10,12 @@ var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 
 var app = express();
-var port = process.env.PORT || 3000;
+var port = process.env.PORT;
 
 //Middleware
 app.use(bodyParser.json());
 
-//Routes
+// *** Routes for todos ***
 
 //Create todos
 app.post('/todos', (req, res) => {
@@ -42,6 +44,7 @@ app.get('/todos', (req, res) => {
 
 //Get todo based on id
 app.get('/todos/:id', (req, res) => {
+
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -108,6 +111,20 @@ app.patch('/todos/:id', (req, res) => {
             todo
         });
     }).catch((err) => {
+        res.status(400).send(err);
+    });
+});
+
+// *** Routes for users ***
+
+//Create users
+app.post('/users', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+
+    user.save().then((doc) => {
+        res.send(doc);
+    }, (err) => {
         res.status(400).send(err);
     });
 });
