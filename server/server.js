@@ -123,16 +123,6 @@ app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['email', 'password']);
     var user = new User(body);
 
-    // console.log('*** Email ***', body.email);
-
-    // user.save().then(() => {
-    //     return user.generateAuthToken();
-    // }).then((token) => {
-    //     res.header('x-auth', token).send(user);
-    // }).catch((err) => {
-    //     res.status(400).send(err);
-    // });
-
     user.save().then(() => {
         return user.generateAuthToken().then((token) => {
             res.header('x-auth', token).send(user);
@@ -157,6 +147,15 @@ app.post('/users/login', (req, res) => {
             res.header('x-auth', token).send(user);
         });
     }).catch((err) => {
+        res.status(400).send();
+    });
+});
+
+//Delete token
+app.delete('/users/me/token', authenticate, (req, res) => {
+    req.user.removeToken(req.token).then(() => {
+        res.status(200).send();
+    }).then(() => {
         res.status(400).send();
     });
 });

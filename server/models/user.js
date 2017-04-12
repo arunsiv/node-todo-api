@@ -42,7 +42,7 @@ UserSchema.methods.toJSON = function() {
     return _.pick(userObject, ['_id', 'email']);
 };
 
-//Custom instance method to generate access and token
+//Custom instance method to generate auth token
 //while creating a new user.
 UserSchema.methods.generateAuthToken = function () {
     var user = this;
@@ -59,6 +59,20 @@ UserSchema.methods.generateAuthToken = function () {
 
     return user.save().then(() => {
         return token;
+    });
+};
+
+//Custom instance method to delete auth token for a user
+UserSchema.methods.removeToken = function(token) {
+    var user = this;
+
+    return user.update({
+        //$pull will delete an item in an array if the value matches
+        $pull: {
+            tokens: {
+                token
+            }
+        }
     });
 };
 
