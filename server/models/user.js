@@ -42,7 +42,7 @@ UserSchema.methods.toJSON = function() {
     return _.pick(userObject, ['_id', 'email']);
 };
 
-//Create a custom instance method to generate access and token
+//Custom instance method to generate access and token
 //while creating a new user.
 UserSchema.methods.generateAuthToken = function () {
     var user = this;
@@ -60,10 +60,9 @@ UserSchema.methods.generateAuthToken = function () {
     return user.save().then(() => {
         return token;
     });
-
 };
 
-//Create a custom model method for fetching user based on token
+//Custom model method for fetching user based on token
 UserSchema.statics.findByToken = function(token) {
     var User = this;
     var decoded;
@@ -83,7 +82,33 @@ UserSchema.statics.findByToken = function(token) {
         'tokens.token': token,
         'tokens.access': 'auth'
     });
+};
 
+//Custom model method for fetching user based on email and password
+UserSchema.statics.findByCredentials = function(email, password) {
+    var User = this;
+
+    return User.findOne({
+        email
+    }).then((user) => {
+        //return the promise reject when the user is not found
+        if (!user) {
+            return Promise.reject();
+        }
+
+        //If user is present, compare the password in the req, with the password in db
+        //Since bcrypt does not use promise, we create a new promise and inside the promise 
+        // we will compare the password.
+        return new Promise((resolve,reject) => {
+            bcrypt.compare(password, user.password, (err, res) => {
+                if (res) {
+                    resolve(user);
+                } else {
+                    reject();
+                }
+            });
+        });
+    });
 };
 
 //Mongoose Middleware which runs before every time a model is saved
