@@ -18,7 +18,7 @@ const userTestData = [{
         token: jwt.sign({
             _id: userOneId,
             access: 'auth'
-        }, 'secretvalue').toString()
+        }, process.env.JWT_SECRET).toString()
     }]
 }, {
     _id: userTwoId,
@@ -29,7 +29,7 @@ const userTestData = [{
         token: jwt.sign({
             _id: userTwoId,
             access: 'auth'
-        }, 'secretvalue').toString()
+        }, process.env.JWT_SECRET).toString()
     }]
 }, {
     _id: userThreeId,
@@ -40,7 +40,7 @@ const userTestData = [{
         token: jwt.sign({
             _id: userThreeId,
             access: 'auth'
-        }, 'secretvalue').toString()
+        }, process.env.JWT_SECRET).toString()
     }]
 }];
 
